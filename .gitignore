@@ -1,0 +1,10 @@
+node_modules/
+dist/
+target/
+.env
+__pycache__/
+*.pyc
+temp_audio/
+venv/
+.venv/
+test-app/
