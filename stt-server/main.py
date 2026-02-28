@@ -18,7 +18,7 @@ app.add_middleware(
 
 # Initialize Faster-Whisper model
 # Using 'base' model on CPU with int8 quantization for speed/efficiency
-MODEL_SIZE = "base"
+MODEL_SIZE = "tiny.en"
 model = WhisperModel(MODEL_SIZE, device="cpu", compute_type="int8")
 
 TEMP_DIR = "temp_audio"
@@ -42,7 +42,7 @@ async def transcribe_audio(file: UploadFile = File(...)):
     
     try:
         # Transcribe
-        segments, info = model.transcribe(temp_file_path, beam_size=5)
+        segments, info = model.transcribe(temp_file_path, beam_size=1)
         
         transcript = []
         for segment in segments:

@@ -87,7 +87,10 @@ export default function DashboardUI() {
     };
 
     return (
-        <div className="flex h-screen bg-[#0A0A0B] text-slate-300 font-sans selection:bg-rose-500/30">
+        <div
+            className="flex h-screen bg-[#0A0A0B] text-slate-300 font-sans selection:bg-rose-500/30"
+            onContextMenu={(e) => e.preventDefault()}
+        >
 
             {/* Sidebar Navigation */}
             <div className="w-64 border-r border-[#1C1C1E] bg-[#0E0E10] flex flex-col pt-6 pb-4 relative z-10">

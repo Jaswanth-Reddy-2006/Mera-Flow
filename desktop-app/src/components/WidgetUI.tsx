@@ -91,18 +91,48 @@ export default function WidgetUI() {
 
     useEffect(() => {
         if (!isTauri()) return;
-        let unlistenPressed: (() => void) | null = null;
-        let unlistenReleased: (() => void) | null = null;
-        listen('shortcut-pressed', () => startRecording()).then(u => unlistenPressed = u).catch(console.warn);
-        listen('shortcut-released', () => stopRecording()).then(u => unlistenReleased = u).catch(console.warn);
+
+        const unlistenPromises = [
+            listen('shortcut-pressed', () => startRecording()),
+            listen('shortcut-released', () => stopRecording())
+        ];
+
         return () => {
-            if (unlistenPressed) unlistenPressed();
-            if (unlistenReleased) unlistenReleased();
+            Promise.all(unlistenPromises).then(unlisteners => {
+                unlisteners.forEach(unlisten => unlisten());
+            });
         };
     }, [startRecording, stopRecording]);
 
+    const handleContextMenu = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!isTauri()) return;
+        try {
+            const { Menu } = await import('@tauri-apps/api/menu');
+            const { getCurrentWindow } = await import('@tauri-apps/api/window');
+            // Check if menu is available
+            const menu = await Menu.new({
+                items: [
+                    {
+                        id: 'close',
+                        text: 'Close Widget',
+                        action: () => {
+                            getCurrentWindow().hide();
+                        }
+                    }
+                ]
+            });
+            await menu.popup();
+        } catch (err) {
+            console.warn("Context menu error", err);
+        }
+    };
+
     return (
-        <div className="w-full h-full min-h-screen flex items-center justify-center bg-transparent select-none overflow-hidden font-sans p-2">
+        <div
+            className="w-full h-full min-h-screen flex items-center justify-center bg-transparent select-none overflow-hidden font-sans p-2"
+            onContextMenu={handleContextMenu}
+        >
             <div
                 data-tauri-drag-region
                 className="relative flex items-center justify-center bg-black border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.9)] rounded-full transition-colors w-[110px] h-[40px] px-2.5 cursor-move overflow-hidden"
